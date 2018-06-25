@@ -1,6 +1,4 @@
-import glob
 import os
-import shutil
 from tkinter import *
 from tkinter import filedialog
 
@@ -19,7 +17,7 @@ class CreateGui:
         self.mainframe = Frame(self.root)
 
         # Browse button to path containing test folders
-        self.tkvar_path_top = StringVar(self.root)
+        self.tkvar_path_image = StringVar(self.root)
         self.tkvar_browse = BooleanVar(self.root)
         self.tkvar_browse = False
 
@@ -55,16 +53,16 @@ class CreateGui:
         """ Select image """
 
         self.tkvar_browse = True
-        self.tkvar_path_top = str(filedialog.askopenfilename())
-        self.browse_button["text"] = os.path.basename(self.tkvar_path_top)
+        self.tkvar_path_image = str(filedialog.askopenfilename())
+        self.browse_button["text"] = os.path.basename(self.tkvar_path_image)
 
     def start_analysis(self):
         """ Start line detection if image is chosen """
 
-        if not self.tkvar_browse or not self.tkvar_path_top:
+        if not self.tkvar_browse or not self.tkvar_path_image:
             print('\n ERROR: No path selected!')
         else:
-            line_detection(self.tkvar_path_top)
+            line_detection(self.tkvar_path_image)
 
 def main():
     """ Run code """

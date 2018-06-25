@@ -1,16 +1,21 @@
 import math
 
+import os
 import cv2
 import imutils
 import numpy as np
+import pandas as pd 
 
+# TODO get one measurement of hand
+#      translate pixel coordinates into [mm] coordinates
 
 def line_detection(path_top):
     """
     Detect the lines,
     take the extreme points of the lines,
     sort left extreme points radialy,
-    sort left extreme points by finger
+    sort left extreme points by finger,
+    write coordinates to csv
     """
 
     # Read in image, resize, and convert to HSV colors
@@ -45,7 +50,7 @@ def line_detection(path_top):
         # Draw each of the extreme points
         font = cv2.FONT_HERSHEY_SIMPLEX
         cv2.circle(img, extreme_left, 8, (0, 0, 255), -1)
-        # cv2.circle(img, extreme_right, 8, (255, 0, 0), -1)
+        cv2.circle(img, extreme_right, 8, (255, 0, 0), -1)
         # cv2.circle(img, extreme_top, 8, (255, 0, 0), -1)
         # cv2.circle(img, extreme_bottom, 8, (255, 255, 0), -1)
 
@@ -70,6 +75,10 @@ def line_detection(path_top):
     # Sort by angle, then sort by finger group
     extremes = extremes[np.argsort(extremes[:, 4])]
     extremes = extremes[np.append(np.argsort(-extremes[:2, 1]), [(np.argsort(-extremes[2:5, 1]) + 2), (np.argsort(-extremes[5:8, 1]) + 5), (np.argsort(-extremes[8:11, 1]) + 8), (np.argsort(-extremes[11:14, 1]) + 11)])]
+
+    # Save coordinates arranged vertically to .csv
+    extremes_df = pd.DataFrame(extremes[:,:4].reshape(56,1))
+    extremes_df.to_csv(os.path.join(os.path.dirname(path_top), "output.csv"), index=False, header=False)
 
     # Draw label for extremes
     for e in range(0, contours_count):
