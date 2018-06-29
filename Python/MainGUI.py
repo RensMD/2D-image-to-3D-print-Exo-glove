@@ -2,6 +2,7 @@ import os
 from tkinter import *
 from tkinter import filedialog
 
+from GetRatio import get_ratio
 from LineDetect import line_detection
 
 
@@ -62,7 +63,7 @@ class CreateGui:
         if not self.tkvar_browse or not self.tkvar_path_image:
             print('\n ERROR: No path selected!')
         else:
-            line_detection(self.tkvar_path_image)
+            line_detection(self.tkvar_path_image, get_ratio(self.tkvar_path_image))
 
 def main():
     """ Run code """
