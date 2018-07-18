@@ -6,7 +6,7 @@ import imutils
 import numpy as np
 import pandas as pd
 
-def line_detection(path_image, ratio):
+def line_detection(path_image, filename, ratio):
     """
     Detect the lines,
     take the extreme points of the lines,
@@ -17,7 +17,9 @@ def line_detection(path_image, ratio):
 
     # Read in image, resize, and convert to HSV colors
     img = cv2.imread(path_image)
-    img = cv2.resize(img, None, fx=0.4, fy=0.4, interpolation=cv2.INTER_AREA)
+    height, width = img.shape[:2]
+    width = int((1080/height)*width)
+    img = cv2.resize(img, (width, 1080), interpolation=cv2.INTER_AREA)
     hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
 
     # Setup thresholds and apply to image, clean up contours
@@ -71,17 +73,19 @@ def line_detection(path_image, ratio):
 
     # Sort by angle, then sort by finger group
     extremes = extremes[np.argsort(extremes[:, 4])]
-    # TODO Make adaptive to number of lines
+    # TODO Make adaptive to number of lines in image
     extremes = extremes[np.append(np.argsort(-extremes[:4, 1]), [(np.argsort(-extremes[4:10, 1]) + 4), (np.argsort(-extremes[10:16, 1]) + 10), (np.argsort(-extremes[16:22, 1]) + 16), (np.argsort(-extremes[22:28, 1]) + 22)])]
-
-    # Save coordinates arranged vertically to .csv
-    # TODO extremes array * ratio
-    extremes_df = pd.DataFrame(extremes[:,:4].reshape(contours_count*4, 1))
-    extremes_df.to_csv(os.path.join(os.path.dirname(path_image), "output.csv"), index=False, header=False)
 
     # Draw label for extremes
     for e in range(0, contours_count):
         cv2.putText(img, str(e), (int(extremes[e, 0]), int(extremes[e, 1])), font, 0.8, (0, 0, 255))
+
+    # Multiply extremes array by mm/pixel ratio
+    extremes = extremes*ratio
+
+    # Save coordinates arranged vertically to .csv
+    extremes_df = pd.DataFrame(extremes[:,:4].reshape(contours_count*4, 1))
+    extremes_df.to_csv(os.path.join(os.path.dirname(path_image), filename + ".csv"), index=False, header=False)
 
     # Show the output images
     # cv2.imshow('HSV', hsv)

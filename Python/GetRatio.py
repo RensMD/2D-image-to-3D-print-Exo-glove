@@ -5,16 +5,18 @@ import numpy as np
 
 button_down = False
 
-def get_ratio(path_image):
+def get_ratio(path_image, real_length):
     """
     Load and display image,
     start mouse handler,
     calculate ratio [mm/px] from line
     """
 
-    # Load image and rescale
+    # Load image and rescale to height 1080
     img = cv2.imread(path_image, 1)
-    img = cv2.resize(img, None, fx=0.4, fy=0.4, interpolation=cv2.INTER_AREA)
+    height, width = img.shape[:2]
+    width = int((1080/height)*width)
+    img = cv2.resize(img, (width, 1080), interpolation=cv2.INTER_AREA)
 
     # Set up data to send to mouse handler
     data = {}
@@ -30,8 +32,6 @@ def get_ratio(path_image):
     points = np.int16(data['lines'])
 
     # Calculate ratio between real length and pixel length of line
-    # TODO user input for real length
-    real_length = 300
     pixel_length = math.sqrt(math.pow(points[0][0, 0] - points[0][1, 0], 2) + math.pow(points[0][0, 1] - points[0][1, 1], 2))
     ratio = real_length/pixel_length
 
